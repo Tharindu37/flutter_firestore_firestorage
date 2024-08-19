@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_crud/models/user_model.dart';
 import 'package:flutter_firestore_crud/screens/user_list.dart';
+import 'package:flutter_firestore_crud/services/file.dart';
+import 'package:flutter_firestore_crud/services/storage_service.dart';
 import 'package:flutter_firestore_crud/services/user.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -19,9 +23,12 @@ class _HomeState extends State<Home> {
   String profileImage = "";
   File? _image;
   int age = 0;
+  PlatformFile? pickedFile;
 
   final ImagePicker _picker = ImagePicker();
   final UserServices _userService = UserServices();
+  final StorageService _storageService = StorageService();
+  final FileService _fileService = FileService();
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -29,13 +36,10 @@ class _HomeState extends State<Home> {
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
+        profileImage = pickedFile.path;
+        // await uploadFile(_image!);
       });
-      await _uploadImage();
     }
-  }
-
-  Future<void> _uploadImage() async {
-    print("Image Upload...");
   }
 
   Future<void> _createUser() async {
@@ -43,7 +47,9 @@ class _HomeState extends State<Home> {
     print(_image);
     print(name);
     print(age);
-    UserModel user = new UserModel(name, age, "test/path");
+    DateTime now = DateTime.now();
+    final downloadUrl = await _fileService.uploadFile(_image!, "user/$now");
+    UserModel user = new UserModel(name, age, downloadUrl);
     dynamic result = await _userService.createUser(user);
     print(result);
   }
@@ -80,13 +86,13 @@ class _HomeState extends State<Home> {
                   children: [
                     // Profile Image
                     GestureDetector(
+                      // onTap: _pickImage,
                       onTap: _pickImage,
                       child: CircleAvatar(
                           radius: 80,
-                          backgroundImage: profileImage.isNotEmpty
-                              ? NetworkImage(profileImage)
-                              : null,
-                          child: profileImage.isEmpty
+                          backgroundImage:
+                              _image != null ? FileImage(_image!) : null,
+                          child: _image == null
                               ? const Icon(
                                   Icons.person,
                                   size: 80,

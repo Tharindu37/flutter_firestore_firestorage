@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_crud/models/user_model.dart';
+import 'package:flutter_firestore_crud/services/file.dart';
 import 'package:flutter_firestore_crud/services/user.dart';
 
 class UserList extends StatefulWidget {
@@ -11,6 +12,20 @@ class UserList extends StatefulWidget {
 
 class _UserListState extends State<UserList> {
   final UserServices userServices = UserServices();
+  final FileService fileService = FileService();
+
+  _deleteUser(String id, String downloadUrl) async {
+    print("Delete User: $id");
+    try {
+      await userServices.deleteUser(id);
+      await fileService.deleteFileByDownloadUrl(downloadUrl);
+      setState(() {});
+      print("Deleted!");
+    } catch (error) {
+      print(error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,6 +68,10 @@ class _UserListState extends State<UserList> {
                       ),
                       title: Text(user.name),
                       subtitle: Text('Age: ${user.age}'),
+                      onLongPress: () => {
+                        _showDeleteConfirmationDialog(
+                            user.id!, user.profileImage!)
+                      },
                     );
                   },
                 );
@@ -60,5 +79,35 @@ class _UserListState extends State<UserList> {
             }),
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(
+      String id, String downloadUrl) async {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Delete User"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [Text("Are you sure you want to delete this user?")],
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Cancel")),
+              TextButton(
+                  onPressed: () {
+                    _deleteUser(id, downloadUrl);
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Delete"))
+            ],
+          );
+        });
   }
 }

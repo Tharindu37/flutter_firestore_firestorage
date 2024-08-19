@@ -26,7 +26,8 @@ class UserServices {
   Future<List<UserModel>> getUsers() async {
     QuerySnapshot snapshot = await users.get();
     return snapshot.docs
-        .map((doc) => UserModel.formMap(doc.data() as Map<String, dynamic>))
+        .map((doc) =>
+            UserModel.formMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
   }
 
@@ -49,6 +50,10 @@ class UserServices {
   //       .then((value) => print("User email updated successfully!"))
   //       .catchError((error) => print("Failed to update user email: $error"));
   // }
+
+  Future<void> deleteUser(String userId) {
+    return users.doc(userId).delete();
+  }
 
   // Future<void> deleteUser(String userId) {
   //   CollectionReference users = FirebaseFirestore.instance.collection('users');

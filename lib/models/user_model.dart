@@ -14,8 +14,8 @@ class UserModel {
   }
 
   // Convert a Map into a UserModel
-  factory UserModel.formMap(Map<String, dynamic> map) {
-    return UserModel(map['name'], map['age'], map['profileImage']);
+  factory UserModel.formMap(Map<String, dynamic> map, String id) {
+    return UserModel.withId(id, map['name'], map['age'], map['profileImage']);
   }
 
   @override
