@@ -23,6 +23,13 @@ class UserServices {
   //       .catchError((error) => print("Failed to add user: $error"));
   // }
 
+  Future<List<UserModel>> getUsers() async {
+    QuerySnapshot snapshot = await users.get();
+    return snapshot.docs
+        .map((doc) => UserModel.formMap(doc.data() as Map<String, dynamic>))
+        .toList();
+  }
+
   // Future<void> fetchUsers() {
   //   CollectionReference users = FirebaseFirestore.instance.collection('users');
 

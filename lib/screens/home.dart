@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_firestore_crud/models/user_model.dart';
+import 'package:flutter_firestore_crud/screens/user_list.dart';
 import 'package:flutter_firestore_crud/services/user.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -53,6 +54,14 @@ class _HomeState extends State<Home> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text("Home"),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UserList()));
+                },
+                icon: const Icon(Icons.people_alt))
+          ],
         ),
         body: SingleChildScrollView(
           child: Padding(
